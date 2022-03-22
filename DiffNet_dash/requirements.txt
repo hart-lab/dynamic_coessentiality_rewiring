@@ -1,0 +1,9 @@
+dash
+pandas
+plotly
+flask
+numpy
+plotly-express
+dash_table
+dash_cytoscape
+dash_daq

@@ -1,0 +1,98 @@
+#close_button:hover {
+  color: gray;
+}
+#menu_button:hover {
+  color: gray;
+}
+#restore_checkmarks_checkbox {
+  font-size: 40;
+}
+
+.sidemenu {
+  font-size: calc(14px + (26 - 14) * ((100vw - 300px) / (1600 - 300))) !important;
+  font-family:  Arial, Helvetica, sans-serif;
+  width: 320px;
+  display: inline-block;
+  overflow-x: scroll;
+  background-color: #aaaaaa;
+  border-radius: 0px;
+}
+.sidebar_element {
+  position: relative;
+  width: 90%;
+  height: 70%;
+  left: 5px;
+}
+
+.tab_bar {
+  width: calc(100vw - 336px);
+  height: 40px;
+  margin: auto auto 2px auto;
+  background-color: #aaaaaa;
+}
+.tab_header {
+  border-radius: 0px;
+  width: 150px;
+  overflow: hidden;
+  font-size: calc(16px + (20 - 18) * ((100vw - 300px) / (1600 - 300))) !important;
+  font-family:  Arial, Helvetica, sans-serif;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  line-height: 50px;
+  background-color: #aaaaaa;
+  transition: 0.3s;
+  top: -5px;
+}
+.tab_header_active {
+  border-radius: 0px;
+  font-size: calc(16px + (20 - 18) * ((100vw - 300px) / (1600 - 300))) !important;
+  font-family:  Arial, Helvetica, sans-serif;
+  width: 150px;
+  overflow: hidden;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  line-height: 50px;
+  transition: 0.3s;
+  top: -5px;
+  background-color: #aaa;
+  color: black;
+}
+.tab_header:hover {
+  background-color: #bbb;
+  color: black;
+}
+
+.page_frame {
+  width: calc(100vw - 336px);
+  display: block;
+  position: absolute;
+  left: 336px;
+  top: 48px;
+  height: 100vh;
+}
+.rect_figure {
+  width:calc(100vw - 350px);
+  height:calc(100vh - 100vh/10);
+}
+.sqr_figure {
+  width:calc(100vh - 100vh/10);
+  height:calc(100vh - 100vh/10);
+}
+
+.active_checkbox {
+  display: block;
+  width:280px
+}
+
+.hidden_checkbox {
+  display: none;
+}
+
+#displayed_figure {
+  width:inherit;
+  height:inherit;
+}

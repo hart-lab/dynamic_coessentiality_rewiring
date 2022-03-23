@@ -20,8 +20,8 @@ import numpy as np
 ####################################
 
 data_path = './assets/'
-meta = pd.read_csv(data_path + 'highly_filtered_features_edges_count.txt',sep='\t')
-networks = pd.read_csv(data_path + 'highly-filtered-hits-12kEdges-133features-PCCge248-dPCCge100.txt',sep='\t').set_index('Condition')
+meta = pd.read_csv(data_path + 'filtered_features_edges_count_220323.txt',sep='\t')
+networks = pd.read_csv(data_path + 'filtered-hits-2644edges-PCCge248-dPCCge100-ConditionLT1k.txt',sep='\t').set_index('Condition')
 networks.insert(0, 'Condition', list(networks.index))
 layouts = json.loads(open(data_path + 'layouts.json','r').read())
 cell_lines = pd.read_csv(data_path + 'features-bool-deDuped-2918feats-808cells.txt',sep='\t',index_col=0)
@@ -505,7 +505,7 @@ def toggle_table(switch):
     return(style)
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+	app.run_server(debug=True, port=8053)
 
 
 

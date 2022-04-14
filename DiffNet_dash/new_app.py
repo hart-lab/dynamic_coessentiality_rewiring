@@ -496,9 +496,12 @@ def update_elements(key, button):
     else:
         network = networks.loc[[key]].copy()
         network.round(3)
+        oldcolumns = list( network.columns.values )
         network['Gene pairs'] = network['Gene1'] + '-' +  network['Gene2']
-        header = ['Gene pairs'] + list(set(network.columns) - {'Gene pairs'})
-
+        newcolumns = ['Gene pairs'] + oldcolumns
+        network = network[newcolumns]
+        header = list( network.columns.values )
+        
     return([elements, [{"name": i, "id": i} for i in network[header].columns],network.round(4).to_dict('records')])#,'/apps/dash_net/' + key])
 
 def set_scaling(N):

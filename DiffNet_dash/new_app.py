@@ -67,11 +67,15 @@ gene_dropdown = dcc.Dropdown(
     options=gene_options,
     multi=True,
     id='gene_dropdown',
-    style={'width':'30vw'}
+    style={'width':'300px','textAlign':'left','display':'inline-block'}
     )
 gene_selector = html.Div(
-    children = [html.H3('Search for context-gene interactions',style={'margin':'0'}),gene_dropdown],
-    style = {'width':'30vw','margin':'auto','paddingTop':'2vh'}
+    children = [html.H4('OR', 
+                        style={'width':'300px','textAlign':'center','display':'inline-block'}),
+                html.P('Select gene (below) to find contexts (above) with dynamic interactions',
+                        style={'width':'300px','textAlign':'left','display':'inline-block'}),
+                gene_dropdown],
+    style = {'width':'300px','textAlign':'left','display':'inline-block'}
 )
 data_options = [
     {"label":'Tissue/tumor','value':'tissue/tumor'},
@@ -80,8 +84,8 @@ data_options = [
 data_dropdown = dcc.Dropdown(
     options = data_options,
     id = 'data_dropdown',
-    value='genomic_lesions',
-    style = {'width':'15vw','display':'inline-block'}
+    value='tissue/tumor',
+    style = {'width':'300px','display':'inline-block'}
 )
 
 gene_bool = (meta['Condition'].str.contains('GOF') | meta['Condition'].str.contains('LOF'))
@@ -89,17 +93,32 @@ network_options = meta[gene_bool]['Condition'].sort_values().apply(lambda x: {"l
 network_dropdown = dcc.Dropdown(
     options = network_options,
     id = 'network_dropdown',
-    style = {'width':'15vw','display':'inline-block'}
+    style = {'width':'300px','display':'inline-block'}
 )
-network_selector_header = html.Div(
+context_type_selector_header = html.Div(
     children = [
-        html.H3('Functional context type',style={'margin':'0','width':'15vw','display':'inline-block'}),
-        html.H3('Specific context',style={'margin':'0','width':'15vw','display':'inline-block'})
+        html.P('Step 1. Select context type: tissue/tumor or genotype?',
+                style={#'padding-left':'15px',
+                        'textAlign':'left',
+                        'display':'inline-block'}),
     ]
 )
+
+context_selector_header = html.Div(
+    children = [
+        html.P('Step 2. Select specific context of interest',style={'textAlign':'left',
+                        'display':'inline-block'})
+    ]
+)
+
 network_selector = html.Div(
-    children = [network_selector_header,data_dropdown,network_dropdown],
-    style = {'width':'30vw','margin':'auto','paddingTop':'2vh'}
+    children = [context_type_selector_header,
+                data_dropdown,
+                context_selector_header,
+                network_dropdown],
+    style = {#'padding-left':'15px',
+                        'textAlign':'left',
+                        'display':'inline-block'}
 )
 
 min_range = dcc.Input(
@@ -144,28 +163,37 @@ details = html.Div(
 )
 
 sidemenu = html.Div(
-    children = [gene_selector,network_selector],
+    children = [network_selector,gene_selector],
     className = 'sidemenu',
-    style = {'height':'25vh','width':'40vw','marginTop':'2vh','background-color': '#aaaaaa'} #'#d3d3d3'
+    style = {#'height':'25vh',
+            #'width':'40vw',
+            'marginTop':'1vh',
+            'background-color': '#aaaaaa'} #'#d3d3d3'
 )
 
 left_panel = html.Div(
-    children = [sidemenu],
-    style = {'height':'25vh','width':'40vw','marginLeft':'5vw','display':'inline-block', 'top':0}
+    children = [sidemenu], 
+    style = {#'height':'25vh',
+            #'width':'40vw',
+            'marginLeft':'15px',
+            'display':'inline-block',
+            'top':0}
 
 )
 
 bottom_width = 40 #same as left panel width
 
-refresh_network_button = html.Button(['Refresh network'],id='refresh',style={'position':'absolute','zIndex':1},n_clicks=0)
+refresh_network_button = html.Button(['Reset view'],
+    id='refresh',
+    style={'position':'fixed','zIndex':1},n_clicks=0)
+
 graph = cyto.Cytoscape(
         id='cytoscape',
         layout={'name': 'preset'},
         style={
-            'width': '{left_width}vw'.format(left_width=bottom_width),
-            'height': '30vw',
-            'outlineStyle':'solid','outlineWidth':'medium','outlineColor':'#aaaaaa',
-            },
+            'width': '350px',
+            'height': '350px',
+            'outlineStyle':'solid','outlineWidth':'thin','outlineColor':'black', 'background-color':'white'}, # #ECEEF0
         elements=[],
         zoom=.1,
         minZoom=.1,
@@ -184,7 +212,8 @@ graph = cyto.Cytoscape(
             'selector': 'node',
             'style': {
                 'content': 'data(label)',
-                'font-size':20
+                'font-size':20,
+                'color':'black'
             }
         },
         ]
@@ -192,44 +221,74 @@ graph = cyto.Cytoscape(
 
 interactive_title = html.Div([
 					  
-					        html.H2('Interactive network',
+					        html.H4('Context-variant network view',
 					        style={
-					            'width':'{left_width}vw'.format(left_width=bottom_width),
-					            'height':'5vh',
-					            'textAlign':'center',
-					            'paddingTop':'2vh'
+                                'padding-left':'15px',
+                                'textAlign':'left',
+                                #'marginLeft':'15vw',
+					            #'textAlign':'center',
+					            'paddingTop':'1vh',
+                                'display': 'inline-block',
 					            })					        
         ])
 
 
+#
+# this is not displayed: 220413 revision
+#
 switch = html.Div(children = [daq.BooleanSwitch(
   id='table_switch',
-  label='Click on for a tabular view of network',
-  labelPosition='top',
+  label='Tabular view of network',
+  labelPosition='left',
+  vertical=True,
   on=False,
-  style = {'display':'block', 'textAlign':'center'}
+  style = {'float':'right', 'paddingLeft':'4vw', 'paddingTop':'1vh','font-size':'12px','textAlign':'center', 'display': 'inline-block'}
 )])
 
-lab_link = html.Div( id='link_to_Hartlab', children=[
-    				dcc.Link( 'Hart Lab', href='https://www.hart-lab.org')
-    				], style={'width':'40vw','textAlign':'center',
-    						  'font-size': '18px'}
-    			)
+note =  html.Div([
+            #dcc.Markdown('**NOTE:** Click on any edge to visualize an interaction', 
+            html.P('Select a context above and see the network of edges that vary with '\
+                ' the selected context. Click any edge in the network to visualize the '\
+                ' interaction at right.',
+            #style={'font-size':'10px', 'top':'39.5vh', 'paddingLeft':'23vw', 'position':'fixed'})
+            style={'font-size':'12px','marginRight':'50px','display':'inline-block'}) # 'top':'39.5vh', 'paddingLeft':'23vw', 'position':'fixed'})
 
-bottom_panel = html.Div(
-    children = [interactive_title, switch, refresh_network_button, graph, lab_link],
-    className='bottom_panel',
-    id='bottom_panel',
+            ])
+
+
+bottom_panel_label = html.Div(
+    #children = [interactive_title, switch],
+    children = [interactive_title, note],
+    className='bottom_panel_label',
+    id='bottom_panel_label',
     style={
-        'width':'40vw','height':'35vh',
-        'display':'block',
-        'position':'absolute',
-        #'left':'50vw',
-        'marginLeft':'5vw',
-        'top':'35vh'
+        'marginLeft':'15px',
+        'display':'inline-block',
+        #'width':'50vw','height':'5vh',
+        #'position':'fixed',
+        #'top':'30vh'
         }
 )
 
+
+bottom_panel_network = html.Div(
+    children = [refresh_network_button, graph],
+    className='bottom_panel_network',
+    id='bottom_panel_network',
+    style={
+        'marginLeft':'15px',
+        'display':'inline-block',
+        #'padding-left':'15px',
+        'textAlign':'left',
+        'width':'325px',
+        'height':'325px',
+        #'width':'40vw','height':'40vh',
+        #'display':'block',
+        #'position':'fixed',
+        #'marginLeft':'5vw',
+        #'top':'40vh'
+        }
+)
 ########################################################################################################################################
 
 
@@ -239,7 +298,7 @@ bottom_panel = html.Div(
 
 ########## scatter plot ############
 
-right_width = 40
+right_width = 600
 right_height = 40
 scatter = px.scatter(paired_profile,x = source,y = target)
 t = scatter.update_layout(
@@ -247,16 +306,27 @@ t = scatter.update_layout(
     yaxis={'zeroline':True,'zerolinecolor':'black','zerolinewidth':2,'showgrid':False,'linecolor':'black','linewidth':2},
     xaxis={'zeroline':True,'zerolinecolor':'black','zerolinewidth':2,'showgrid':False,'linecolor':'black','linewidth':2}
 )
-figure = dcc.Graph(id='figure',figure=scatter,style={'display':'none'})
-plot = html.Div(children=figure,id = 'plot_container',style={'width':'{right_width}vw'.format(right_width=right_width), 
-															 'display':'flex', 'justify-content': 'center', 'align-items': 'center'})
+figure = dcc.Graph(id='figure',
+                    figure=scatter,
+                    style={'display':'none'}),
+                            #'width':'{right_width}%'.format(right_width=right_width),
+                            #'height':'{right_height}%'.format(right_height=right_height),}),
+plot = html.Div(children=figure,
+        id = 'plot_container',
+        style={'width':'{right_width}px'.format(right_width=right_width),
+                #'height':'{right_height}%'.format(right_height=right_height),
+                'display':'flex',
+                'justify-content': 'center', 
+                'align-items': 'center',
+                'margin':'auto' # centers div in a div. 
+                })
 ##############################
 
 
 
 ############# table #############
 
-table_width = 40
+table_width = 75
 
 net_table = html.Div(
     children = [
@@ -266,14 +336,20 @@ net_table = html.Div(
             data=None,
             filter_action='native',
             sort_action='native',
-            page_size=50,
-            style_table={'width':'{table_width}vw'.format(table_width=table_width - 2),'display':'none'}
+            page_size=10,
+            style_table={'width':'{table_width}%'.format(table_width=table_width - 2),
+                        'display':'inline-block',
+                        'textAlign':'center',
+                        'font-size':'10pt'}
+            # turn on static display - remove selector switch
+            #style_table={'width':'{table_width}vw'.format(table_width=table_width - 2),'display':'none'}
         )],style={
-        	'top':0,
+        	#'top':0,
             'height':None, # to avoid the scrollbar
-            'overflowY':'auto',
-            'clear':'both',
-            'display':'block'}
+            #'overflowY':'auto',
+            #'clear':'both',
+            #'display':'block'
+            }
 )
 
 
@@ -281,15 +357,16 @@ right_panel = html.Div(
     children = [plot,net_table],
     className='right_panel',
     id='right_panel',
-    style={
-    	'top':0,
-        'width':'{right_width}vw'.format(right_width = right_width + 1),'height':'{right_height}vh'.format(right_height=right_height),
-        'position':'absolute',
-        'left':'{left_space}vw'.format(left_space = 10+bottom_width + 2),
-        'display':'inline-block',
-        'paddingTop':'12vh'
-        #'overflowX':'hidden'
-        }
+    style={'width':'100%','textAlign':'center'}
+    #style={
+    	#'top':0,
+        #'width':'{right_width}vw'.format(right_width = right_width + 1),'height':'{right_height}vh'.format(right_height=right_height),
+        #'position':'fixed',
+        #'left':'{left_space}vw'.format(left_space = 10+bottom_width + 2),
+        #'paddingLeft':'5vw',
+        #'display':'inline-block',
+        #'paddingTop':'12vh'
+    #    }
 )
 
 
@@ -300,8 +377,18 @@ app.layout = html.Div([
 ####################################
 ############## Title ###############
 ####################################
+            html.Div([
+    			    html.H2('Diffnet: dynamic functional interactions from differential coessentiality', 
+                            #style={'paddingLeft':'5vw', 'display':'inline-block'}),
+                            style={'paddingLeft':'5vw', 'width':'80vw'}),
 
-			html.H1('Dynamic functional interactions', style={'textAlign':'center'}),
+                    dcc.Link( 'Hart Lab', 
+                            href='https://www.hart-lab.org', 
+                            #style={'float':'right', 'paddingLeft':'70vw','display':'inline-block'})
+                            style={'float':'right'})
+                    ],
+                    className='titleBar'
+                    ),
 
 
 ####################################
@@ -311,22 +398,18 @@ app.layout = html.Div([
 
 			html.Div([
 				    left_panel,
-				    bottom_panel
-				    ]),
+				    bottom_panel_label,
+                    bottom_panel_network],
+                    className='leftPanels'
+				    ),
 
 ####################################
 ####### Right column contents ######
 ####################################
 
 
-			html.Div(
-				    children = [right_panel],
-				    style={
-				        'width':'40vw',
-				        'height':'40vh',
-				        'overflowX':'hidden'#,
-				        },
-				    className='panels'
+			html.Div(className='rightPanels',
+                    children=[right_panel]
 				    ),
 
 ###################################
@@ -343,9 +426,8 @@ app.layout = html.Div([
 				    )
 
 
-		], style={'display':'inline-block',
-				  'width':'100vw',
-				  'height':'100vh'})
+		], 
+        className='mainContainer')
 
 
 ########################################################################################################################################
@@ -466,43 +548,53 @@ def update_figure(source,target,key):
 
         sampled_data = set(cell_lines.index[cell_lines[network_key]].tolist()).intersection(set(paired_profile.index.levels[1]))
 
-        paired_profile['group'] = 'out'
-        paired_profile.loc['bf'].loc[sampled_data,'group'] = 'in'
+        paired_profile['Context'] = 'Other'
+        paired_profile.loc['bf'].loc[sampled_data,'Context'] = 'in'
         if 'LOF' in network_key:
-            color_map = {'in':'#1f77b4','out':'grey'}
+            paired_profile.loc['bf'].loc[sampled_data,'Context'] = 'Loss of function'
+            color_map = {'Loss of function':'#1f77b4','Other':'grey'}
         elif 'GOF' in network_key:
-            color_map = {'in':'#ff7f0e','out':'grey'}
+            paired_profile.loc['bf'].loc[sampled_data,'Context'] = 'Gain of function'
+            color_map = {'Gain of function':'#ff7f0e','Other':'grey'}
         else:
-            color_map = {'in':'#2ca02c','out':'grey'}
-        scatter = px.scatter(paired_profile,x = source,y = target,color='group',trendline='ols',color_discrete_map=color_map)
+            paired_profile.loc['bf'].loc[sampled_data,'Context'] = 'Selected tissue/tumor'
+            color_map = {'Selected tissue/tumor':'#2ca02c','Other':'grey'}
+        scatter = px.scatter(paired_profile,x = source,y = target,color='Context',trendline='ols',color_discrete_map=color_map)
         scatter.update_layout(
             #plot_bgcolor='white',
             paper_bgcolor='rgba(0,0,0,0)',
     		plot_bgcolor='rgba(0,0,0,0)',
             yaxis={'zeroline':True,'zerolinecolor':'black','zerolinewidth':2,'showgrid':False,'linecolor':'black','linewidth':2},
-            xaxis={'zeroline':True,'zerolinecolor':'black','zerolinewidth':2,'showgrid':False,'linecolor':'black','linewidth':2}
+            xaxis={'zeroline':True,'zerolinecolor':'black','zerolinewidth':2,'showgrid':False,'linecolor':'black','linewidth':2},
+            title={'text':'Context-dependent correlation view',  'x':0.4},
+            title_font={'size':14, 'color':'black'},
+            legend={'x':1, 'y':1},
+            legend_font={'size':10, 'color':'black'}
         )
-        plot = [dcc.Graph(id='figure',figure=scatter,style={'display':'inline-block','width':'30vw','height':'30vw'})] # set the scatter plot to a square
+        plot = [dcc.Graph(id='figure',figure=scatter,style={'display':'inline-block','width':'500px','height':'400px'})] # set the scatter plot to a square
         return(plot)
 
-@app.callback(
-    Output('meta_table','style_table'),
-    [Input('table_switch','on')]
-)
-def toggle_table(switch):
-    if switch:
-        style={
-            'height':None, # to avoid the table scrollbar
-            'overflowY':'hidden',
-            'clear':'both',
-            'display':'inline-block'}
-    else:
-        style={
-            'height':None,
-            'overflowY':'hidden',
-            'clear':'both',
-            'display':'none'}
-    return(style)
+####
+#     removed the 'table_switch' selector - always show the table.
+####
+#@app.callback(
+#    Output('meta_table','style_table'),
+#    [Input('table_switch','on')]
+#)
+#def toggle_table(switch):
+#    if switch:
+#        style={
+#            'height':None, # to avoid the table scrollbar
+#            'overflowY':'hidden',
+#            'clear':'both',
+#            'display':'inline-block'}
+#    else:
+#        style={
+#            'height':None,
+#            'overflowY':'hidden',
+#            'clear':'both',
+#            'display':'none'}
+#    return(style)
 
 if __name__ == '__main__':
 	app.run_server(debug=True, port=8053)

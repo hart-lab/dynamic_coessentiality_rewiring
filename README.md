@@ -1,1 +1,1 @@
-# dynamic_coessentiality_rewiring
+Code for analysis and figures for Kim et al, Dynamic rewiring of biological activity across genotype and lineage revealed by context-dependent functional interactions, Genome Biol 2022. Jupyter/Python notebooks use Python 3.8 environment.
